@@ -42,7 +42,7 @@ function handleImageUpload(event) {
     }
 }
 
-// Analyze image
+// Analyze image with backend API
 async function analyzeImage() {
     // Show loading state
     analyzeBtn.classList.add('hidden');
@@ -50,47 +50,47 @@ async function analyzeImage() {
     emptyState.classList.add('hidden');
     loadingState.classList.remove('hidden');
     
-    // Simulate API call - Replace this with your actual API call
-    setTimeout(() => {
-        const mockFeatures = [
-            { id: 1, feature: 'Hardwood Flooring', category: 'Interior' },
-            { id: 2, feature: 'Modern Kitchen Appliances', category: 'Kitchen' },
-            { id: 3, feature: 'High Ceilings', category: 'Interior' },
-            { id: 4, feature: 'Natural Lighting', category: 'Windows' },
-            { id: 5, feature: 'Updated Fixtures', category: 'Interior' }
-        ];
-        
-        displayFeatures(mockFeatures);
-    }, 2000);
-    
-    /* 
-    // Actual API call example:
     try {
+        // Create FormData to send the image
         const formData = new FormData();
         formData.append('image', selectedImage);
         
-        const response = await fetch('YOUR_API_ENDPOINT', {
+        // Send to backend API (Flask runs on port 5000)
+        const response = await fetch('http://localhost:5000/api/analyze', {
             method: 'POST',
             body: formData
         });
         
         if (!response.ok) {
-            throw new Error('API request failed');
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'API request failed');
         }
         
         const data = await response.json();
-        displayFeatures(data.features);
+        
+        // Add IDs to features
+        const featuresWithIds = data.features.map((item, index) => ({
+            id: index + 1,
+            ...item
+        }));
+        
+        displayFeatures(featuresWithIds);
+        
     } catch (error) {
         console.error('Error analyzing image:', error);
+        
         // Show error message to user
         analyzingBtn.classList.add('hidden');
         analyzeBtn.classList.remove('hidden');
         loadingState.classList.add('hidden');
         emptyState.classList.remove('hidden');
-        alert('Failed to analyze image. Please try again.');
+        
+        alert('Failed to analyze image. Please make sure the server is running.\n\nError: ' + error.message);
     }
-    */
 }
+
+// Helper function no longer needed with backend
+// Removed fileToBase64 function
 
 // Display features
 function displayFeatures(features) {
