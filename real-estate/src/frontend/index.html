@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Feature Analyzer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-content">
+                <svg class="icon-large" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                </svg>
+                <h1>Home Feature Analyzer</h1>
+            </div>
+            <p class="header-subtitle">Upload photos of your home and we'll identify features worth highlighting to potential buyers</p>
+        </div>
+
+        <div class="grid">
+            <!-- Upload Section -->
+            <div class="card">
+                <h2 class="card-title">
+                    <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    Upload Photo
+                </h2>
+                
+                <div class="upload-area" id="uploadArea">
+                    <input type="file" accept="image/*" id="imageUpload" class="hidden">
+                    <label for="imageUpload" class="upload-label">
+                        <div id="uploadContent">
+                            <svg class="icon-xl" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                            </svg>
+                            <div>
+                                <p class="upload-title">Click to upload a photo</p>
+                                <p class="upload-subtitle">JPG, PNG, or HEIC</p>
+                            </div>
+                        </div>
+                        <div id="previewContent" class="hidden">
+                            <img id="previewImage" src="" alt="Preview" class="preview-image">
+                            <p class="upload-subtitle">Click to change image</p>
+                        </div>
+                    </label>
+                </div>
+
+                <button id="analyzeBtn" class="btn btn-primary hidden">
+                    Analyze Features
+                </button>
+                <button id="analyzingBtn" class="btn btn-disabled hidden" disabled>
+                    <svg class="icon spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                    </svg>
+                    Analyzing...
+                </button>
+            </div>
+
+            <!-- Results Section -->
+            <div class="card">
+                <h2 class="card-title">
+                    <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Notable Features
+                </h2>
+                
+                <div id="resultsContainer">
+                    <div id="emptyState" class="empty-state">
+                        <svg class="icon-xl empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                        </svg>
+                        <p>Upload and analyze a photo to see features</p>
+                    </div>
+
+                    <div id="loadingState" class="loading-state hidden">
+                        <svg class="icon-xl spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                        </svg>
+                        <p>Analyzing your photo...</p>
+                    </div>
+
+                    <div id="featuresList" class="hidden">
+                        <!-- Features will be inserted here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Section -->
+        <div class="info-card">
+            <h3 class="info-title">How it works</h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="step-number">1</div>
+                    <p>Upload a photo of your home</p>
+                </div>
+                <div class="info-item">
+                    <div class="step-number">2</div>
+                    <p>Our AI analyzes the features</p>
+                </div>
+                <div class="info-item">
+                    <div class="step-number">3</div>
+                    <p>Get a list of selling points</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
