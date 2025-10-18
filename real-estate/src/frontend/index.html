@@ -1,111 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Property Analyst 🏡</title>
-    <link rel="stylesheet" href="style.css" />
-  </head>
-  <body>
-    <header>
-      <h1>AI Property Analyst 🏡</h1>
-      <p>
-        Upload a room photo and ask for a detailed, structured marketing
-        analysis.
-      </p>
-    </header>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="wrapper">
+        <header>
+            <h1>🏡 AI Property Analyst</h1>
+            <p>Upload a room photo and receive a detailed, structured marketing analysis</p>
+        </header>
 
-    <div class="container">
-      <div class="input-section">
-        <h2>1. Property Input</h2>
+        <div class="container">
+            <div class="card input-section">
+                <h2>Property Input</h2>
+                
+                <div class="field-group">
+                    <label for="userPrompt">💬 Analysis Request</label>
+                    <textarea id="userPrompt" placeholder="e.g., Analyze the style and suggest three key marketing features." required>Analyze this empty room. Provide a style assessment, a list of three marketable features, and a short 50-word listing description.</textarea>
+                </div>
 
-        <label for="imageUpload">Upload Room Photo:</label>
-        <input type="file" id="imageUpload" accept="image/*" required />
+                <div class="field-group">
+                    <label for="imageUpload">📸 Upload Room Photo</label>
+                    <input type="file" id="imageUpload" accept="image/*" required>
+                </div>
 
-        <img
-          id="propertyImage"
-          src=""
-          alt="Uploaded Property Image"
-          style="display: none"
-        />
+                <div class="image-preview-container">
+                    <img id="propertyImage" src="" alt="Uploaded Property Image">
+                </div>
 
-        <label for="userPrompt" style="display: block; margin-top: 20px"
-          >Your Analysis Request:</label
-        >
-        <textarea
-          id="userPrompt"
-          placeholder="e.g., Analyze the style and suggest three key marketing features."
-          required
-        >
-Analyze this empty room. Provide a style assessment, a list of three marketable features, and a short 50-word listing description.</textarea
-        >
+                <button id="analyzeButton" onclick="analyzeProperty()">
+                    🔍 Analyze Property
+                </button>
+                
+                <div id="loading">Processing your request</div>
+            </div>
 
-        <button id="analyzeButton" onclick="analyzeProperty()">
-          Analyze Property
-        </button>
-
-        <div id="loading">Processing... Please wait a moment.</div>
-      </div>
-
-      <div class="output-section">
-        <h2>2. Structured AI Analysis (JSON)</h2>
-        <div id="outputDisplay">
-          <p>
-            Upload an image and click "Analyze Property" to see the results
-            here.
-          </p>
-          <pre id="jsonOutput"></pre>
+            <div class="card output-section">
+                <h2>AI Analysis <span class="status-indicator"></span></h2>
+                <div id="outputDisplay">
+                    <p>Upload an image and click "Analyze Property" to see the structured JSON results here.</p>
+                    <pre id="jsonOutput"></pre>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
 
-    <script>
-      document
-        .getElementById("imageUpload")
-        .addEventListener("change", function (event) {
-          const file = event.target.files[0];
-          const img = document.getElementById("propertyImage");
-
-          if (file) {
-            img.src = URL.createObjectURL(file);
-            img.style.display = "block";
-          } else {
-            img.style.display = "none";
-            img.src = "";
-          }
-        });
-
-      // The analyzeProperty function will be defined in a separate JavaScript file (e.g., script.js)
-      // For now, it's just a placeholder to show it works:
-      function analyzeProperty() {
-        const button = document.getElementById("analyzeButton");
-        const loading = document.getElementById("loading");
-
-        button.disabled = true;
-        loading.style.display = "block";
-
-        // NOTE: The actual AI and File API logic will go into your backend (e.g., app.py)
-        // This is where your JavaScript would send a request to your server.
-
-        // Simulate a delay for the analysis
-        setTimeout(() => {
-          loading.style.display = "none";
-          button.disabled = false;
-
-          document.getElementById("jsonOutput").textContent = `{
-  "property_analysis": {
-    "style_assessment": "Mock: Modern Farmhouse / Scandinavian Blend",
-    "condition_summary": "Mock: Recently updated, excellent, move-in ready condition.",
-    "marketable_features": [
-      {"feature_name": "Mock: Oversized Windows", "description": "Abundant natural light enhances the spacious feel."},
-      {"feature_name": "Mock: Herringbone Wood Floors", "description": "High-end, durable flooring adds character and luxury."},
-      {"feature_name": "Mock: Open Concept Layout", "description": "Seamless flow between kitchen, living, and dining areas."}
-    ],
-    "listing_description": "Mock: Stunningly bright, open-concept home featuring beautiful herringbone floors and designer lighting. Ready for immediate occupancy."
-  }
-}`;
-        }, 3000); // 3 second delay
-      }
-    </script>
-  </body>
+    <script src="script.js"></script>
+</body>
 </html>
