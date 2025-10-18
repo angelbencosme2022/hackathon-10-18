@@ -147,6 +147,143 @@ Return ONLY the JSON array, nothing else. Example format:
             'message': str(e)
         }), 500
 
+@app.route('/api/analyze-tour-photo', methods=['POST'])
+def analyze_tour_photo():
+    """Analyze a photo for virtual tour and suggest hotspot locations"""
+    try:
+        # Check if image file is in request
+        if 'image' not in request.files:
+            return jsonify({'error': 'No image file provided'}), 400
+        
+        file = request.files['image']
+        
+        if file.filename == '':
+            return jsonify({'error': 'No selected file'}), 400
+        
+        # Read the file and convert to base64
+        image_data = file.read()
+        base64_image = base64.b64encode(image_data).decode('utf-8')
+        
+        # Get mime type
+        mime_type = file.content_type
+        
+        # Prepare the request to Gemini API with hotspot detection
+        request_body = {
+            "contents": [{
+                "parts": [
+                    {
+                        "text": """You are a real estate photography analyzer for virtual tours. Analyze this home photo and identify key features with their approximate locations.
+
+For each notable feature, estimate its position in the image as percentages (x, y) where:
+- x is the horizontal position (0-100, left to right)
+- y is the vertical position (0-100, top to bottom)
+
+Return a JSON array of objects with:
+- "name": concise feature name (e.g., "Granite Countertops")
+- "description": brief description for buyers (e.g., "Premium granite with modern finish")
+- "x": horizontal position percentage (0-100)
+- "y": vertical position percentage (0-100)
+
+Focus on identifying 3-6 of the most impressive features:
+- Premium materials (hardwood, granite, marble, quartz)
+- Modern appliances and fixtures
+- Architectural details (crown molding, built-ins, high ceilings)
+- Natural lighting sources (windows, skylights)
+- Recent updates or renovations
+- Unique or standout features
+
+Be strategic with placement - position hotspots near the actual feature in the image.
+
+Return ONLY the JSON array. Example:
+[
+  {"name": "Stainless Appliances", "description": "Professional-grade kitchen appliances", "x": 65, "y": 45},
+  {"name": "Granite Countertops", "description": "Premium granite with elegant finish", "x": 40, "y": 55}
+]"""
+                    },
+                    {
+                        "inline_data": {
+                            "mime_type": mime_type,
+                            "data": base64_image
+                        }
+                    }
+                ]
+            }],
+            "generationConfig": {
+                "temperature": 0.5,
+                "maxOutputTokens": 1500,
+            }
+        }
+        
+        # Call Gemini API
+        api_url = f"https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}"
+        
+        response = requests.post(
+            api_url,
+            headers={'Content-Type': 'application/json'},
+            json=request_body
+        )
+        
+        if response.status_code != 200:
+            print(f"Gemini API error: {response.text}")
+            return jsonify({
+                'error': 'Failed to analyze image',
+                'message': f'API request failed: {response.status_code}'
+            }), 500
+        
+        data = response.json()
+        
+        # Extract the text response
+        try:
+            if 'candidates' in data and len(data['candidates']) > 0:
+                candidate = data['candidates'][0]
+                if 'content' in candidate:
+                    text_response = candidate['content']['parts'][0]['text']
+                elif 'output' in candidate:
+                    text_response = candidate['output']
+                else:
+                    raise KeyError("Unexpected response format")
+            else:
+                raise KeyError("No candidates in response")
+        except (KeyError, IndexError) as e:
+            print(f"Error extracting text from response: {e}")
+            return jsonify({
+                'error': 'Unexpected API response format',
+                'message': str(e)
+            }), 500
+        
+        # Parse the JSON response
+        try:
+            cleaned_response = text_response.replace('```json\n', '').replace('\n```', '').replace('```', '').strip()
+            hotspots = json.loads(cleaned_response)
+            
+            # Validate hotspot data
+            for hotspot in hotspots:
+                if not all(key in hotspot for key in ['name', 'x', 'y']):
+                    raise ValueError("Invalid hotspot data structure")
+                # Ensure x and y are within bounds
+                hotspot['x'] = max(5, min(95, float(hotspot['x'])))
+                hotspot['y'] = max(5, min(95, float(hotspot['y'])))
+                # Add description if missing
+                if 'description' not in hotspot:
+                    hotspot['description'] = ''
+                    
+        except (json.JSONDecodeError, ValueError) as e:
+            print(f"Error parsing JSON: {e}")
+            print(f"Raw response: {text_response}")
+            return jsonify({
+                'error': 'Failed to parse API response',
+                'message': str(e)
+            }), 500
+        
+        return jsonify({'hotspots': hotspots})
+        
+    except Exception as e:
+        print(f"Error analyzing tour photo: {str(e)}")
+        return jsonify({
+            'error': 'Failed to analyze tour photo',
+            'message': str(e)
+        }), 500
+
 if __name__ == '__main__':
     if not GEMINI_API_KEY:
         print("WARNING: GEMINI_API_KEY not found in environment variables!")
