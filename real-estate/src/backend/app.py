@@ -83,8 +83,8 @@ Return ONLY the JSON array, nothing else. Example format:
             }
         }
         
-        # Call Gemini API
-        api_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}"
+        # Call Gemini API (using v1 instead of v1beta)
+        api_url = f"https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}"
         
         response = requests.post(
             api_url,
@@ -101,8 +101,28 @@ Return ONLY the JSON array, nothing else. Example format:
         
         data = response.json()
         
-        # Extract the text response
-        text_response = data['candidates'][0]['content']['parts'][0]['text']
+        # Debug: Print the response structure
+        print("Gemini API Response:", json.dumps(data, indent=2))
+        
+        # Extract the text response (handle both v1 and v1beta response formats)
+        try:
+            if 'candidates' in data and len(data['candidates']) > 0:
+                candidate = data['candidates'][0]
+                if 'content' in candidate:
+                    text_response = candidate['content']['parts'][0]['text']
+                elif 'output' in candidate:
+                    text_response = candidate['output']
+                else:
+                    raise KeyError("Unexpected response format")
+            else:
+                raise KeyError("No candidates in response")
+        except (KeyError, IndexError) as e:
+            print(f"Error extracting text from response: {e}")
+            print(f"Response structure: {data}")
+            return jsonify({
+                'error': 'Unexpected API response format',
+                'message': str(e)
+            }), 500
         
         # Parse the JSON response
         try:

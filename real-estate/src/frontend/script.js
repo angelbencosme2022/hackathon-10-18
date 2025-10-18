@@ -56,7 +56,7 @@ async function analyzeImage() {
         formData.append('image', selectedImage);
         
         // Send to backend API (Flask runs on port 5000)
-        const response = await fetch('http://localhost:5000/api/analyze', {
+        const response = await fetch('http://127.0.0.1:5000/api/analyze', {
             method: 'POST',
             body: formData
         });
